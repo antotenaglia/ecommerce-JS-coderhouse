@@ -1,7 +1,7 @@
 
 // inicia programa consultando si cliente desea comprar algo
 let respuestaInicial = '';
-const objetosAcomprar = []; // array compuesto por Objetos de dos parámetros
+let objetosAcomprar = []; // array compuesto por Objetos de dos parámetros
 function compraInicial () {
     respuestaInicial = (prompt('¿Desea comprar algo? si / no'));
     if (respuestaInicial == 'si') {
@@ -69,10 +69,30 @@ function calcularCuotas () {
 }
 
 // sobre los productos que desea comprar, calcula costo final. Sólo lo hace si hay productos en el array
+let precioTotal = 0;
 function calculoPrecioTotal () {
     if (objetosAcomprar.length != 0) {
-        const precioTotal = preciosDeProductos.reduce((total, elemento) => total + elemento, 0); // aplico función de orden superior
+        precioTotal = preciosDeProductos.reduce((total, elemento) => total + elemento, 0); // aplico función de orden superior
         alert ('El costo total de los productos a comprar es de: ' + precioTotal);
+    }
+}
+
+// sobre los productos que desea comprar, los agrega al HTML y pone precio final en un párrafo. Sólo lo hace si hay productos en el array
+function interactuoConHTML () {
+    if (objetosAcomprar.length != 0) {
+        let tarjeta = document.querySelectorAll('.card');
+        for (let i = 0; i < (tarjeta.length - objetosAcomprar.length); i++) {
+            tarjeta[i].remove();
+        } // borra las tarjetas que no se necesitan   
+        for (let i = 0; i < objetosAcomprar.length; i++){
+            let tipoYmarcaProducto = document.querySelectorAll('h5'); //genera un array compuesto por todos los h5
+            let precioProducto = document.querySelectorAll('h6'); //genera un array compuesto por todos los h6
+            tipoYmarcaProducto[i].textContent = (objetosAcomprar[i].tipo + ' ' + objetosAcomprar[i].marca); // modifica el texto de cada h5 por el tipo y marca del producto
+            precioProducto[i].textContent = ('$ ' + preciosDeProductos[i]); // modifica el texto de cada h6 por el precio del producto
+        }
+        let parrafoPrecioFinal = document.createElement('div');
+        parrafoPrecioFinal.innerHTML = '<p> El costo total de los productos a comprar es de: $'+ precioTotal;'</p>';
+        document.body.children[2].prepend(parrafoPrecioFinal); //informa precio final de los productos antes del section
     }
 }
 
@@ -91,6 +111,9 @@ if (respuestaInicial == 'si') {
         calcularCuotas(); 
     }
     calculoPrecioTotal();
-    console.log(preciosDeProductos);
+    interactuoConHTML();
 }
+
+
+
 
