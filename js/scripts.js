@@ -1,15 +1,25 @@
 
 let objetosAcomprar = [
-    {tipo: "Smelly cat", marca: "Friends", precio: 125, imagen:'../images/Smelly-cat.jpg'},
-    {tipo: "Logo", marca: "Coldplay", precio: 56, imagen:'../images/Logo-coldplay.jpg'},
-    {tipo: "London Baby", marca: "Friends", precio: 48, imagen:'../images/London-baby.jpg'},
-    {tipo: "Paradise", marca: "Coldplay", precio: 100, imagen:'../images/Paradise.jpg'},
-]; // array compuesto por Objetos de cuatro parámetros
+    {id: 1, tipo: "Smelly cat", marca: "Friends", precio: 125, imagen:'../images/Smelly-cat.jpg'},
+    {id: 2, tipo: "Logo", marca: "Coldplay", precio: 56, imagen:'../images/Logo-coldplay.jpg'},
+    {id: 3, tipo: "London Baby", marca: "Friends", precio: 48, imagen:'../images/London-baby.jpg'},
+    {id: 4, tipo: "Paradise", marca: "Coldplay", precio: 100, imagen:'../images/Paradise.jpg'},
+];
 
 
-//por cada producto, hago una card desde JS
+//accede a elementos guardados en el Storage. Se pone al inicio porque se debe ejecutar primero. 
+let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //si no hay nada en el carrito, es decir es null, ejecuta la segunda operación
+
+
+//Teniendo datos del carrito, es posible obtener precioTotal y carrito.length sin tener que traerlo del storage
+let precioTotal = carrito.reduce((total, producto) => total + producto.precio, 0); 
+document.querySelector('.acumuladorCarrito').innerHTML = carrito.length; //muestra N° productos en el botón del carrito
+
+
+//por cada producto, hace una card desde JS y genera la función agregarAlCarrito al hacer click sobre botón, identificado por el id del producto
 function creacionCards () {
     objetosAcomprar.forEach((producto) => {
+        const idButton = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto 
         document.querySelector('.sectionCard').innerHTML += 
             `<div class="col mb-5">
                 <div class="card h-100">
@@ -21,33 +31,57 @@ function creacionCards () {
                         </div>
                     </div>
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btnCarrito btn-outline-dark mt-auto" href="#">Agregar al carrito</a></div>
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" id="${idButton}">Agregar al carrito</a></div> 
                     </div>
                 </div>
             </div>`;
     })
+    objetosAcomprar.forEach((producto) => {
+        const idButton = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto 
+        document.getElementById(idButton).onclick = () => { //accede al id y cada vez que se hace click sobre el botón Agregar al carrito realiza lo siguiente:
+            carrito.push(producto); //envía el producto al carrito
+            localStorage.setItem('carrito', JSON.stringify(carrito)); //almacena carrito en el storage
+            document.querySelector('.acumuladorCarrito').innerHTML = carrito.length //muestra N° productos en el carrito 
+            precioTotal = carrito.reduce((total, producto) => total + producto.precio, 0); //calcula precio total acumulado 
+        } 
+    })
 }
 
-//calcula el valor de cada cuota y lo muestra en el HTML
-let numeroCuotas = 0;
-function calcularCuotas () {
-    do {
-        numeroCuotas = parseFloat(prompt('Ingrese número de cuotas con que desea realizar el pago'));
-        if (isNaN(numeroCuotas) || !Number.isInteger(numeroCuotas) || (numeroCuotas < 1)) {
-            alert('Los datos ingresados no son válidos, inténtelo de nuevo')
-        }
-    } while (isNaN(numeroCuotas) || !Number.isInteger(numeroCuotas) || (numeroCuotas < 1));
-    let precioTotal = objetosAcomprar.reduce((total, elemento) => total + elemento.precio, 0); // aplico función de orden superior
-    let resultadoCuota = precioTotal/numeroCuotas;
-    let parrafoPrecioFinal = document.createElement('div');
-    parrafoPrecioFinal.innerHTML = `<p class="text-center pb-4 fw-bolder">${numeroCuotas} cuotas de: $${resultadoCuota}</p>`
-    document.body.children[2].prepend(parrafoPrecioFinal); //informa valor de cada cuota antes del section
+
+//muestra todos los productos agregados al carrito al hacer click en botón Carrito
+//FALTA: agregar precio total, calcular cuotas, darle funcionalidad a botón borrar producto, ver mejor forma de mostrar el carrito sin borrar HTML, ya que sale de la pág ppal
+function mostrarCarrito () {
+    document.querySelector('.btnMostrarCarrito').onclick = () => { 
+        document.querySelector('.body').textContent = ''; //borra toda la información del HTML
+        document.querySelector('.body').innerHTML += //crea tabla dentro del HTML
+            `<table class="table">
+            <thead>
+            <tr>
+                <th scope="col">PRODUCTO</th>
+                <th scope="col">PRECIO</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr> 
+            <thead>
+            <tbody class="tbodyTable">
+            </tbody>
+            </table>`
+        carrito.forEach((producto) => { //muestra productos en una tabla
+            document.querySelector('.tbodyTable').innerHTML +=
+            `<tr>
+                <td>Sticker ${producto.tipo} ${producto.marca} </td>
+                <td>$${producto.precio}</td>
+                <td><img src="${producto.imagen}" style= "width:100px"></td>
+                <td><button class="btn btn-outline-dark"> Borrar producto </button></td>
+            </tr>
+            `;                    
+        })
+    }
 }
 
-// comienzo del programa
 creacionCards ();
-let btnCuotas = document.querySelector('.btnCuotas'); 
-btnCuotas.onclick = () => {calcularCuotas()}; // EVENTO al hacer click sobre botón
+mostrarCarrito ();
+
 
 
 

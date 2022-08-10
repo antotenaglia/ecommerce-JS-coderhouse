@@ -13,7 +13,7 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
     </head>
-    <body>
+    <body class="body">
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container px-4 px-lg-5">
@@ -34,10 +34,10 @@
                         </li>
                     </ul>
                     <form class="d-flex">
-                        <button class="btn btn-outline-dark" type="submit">
+                        <button class="btn btnMostrarCarrito btn-outline-dark" type="submit">
                             <i class="bi-cart-fill me-1"></i>
                             Carrito
-                            <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                            <span class="badge acumuladorCarrito bg-dark text-white ms-1 rounded-pill">0</span>
                         </button>
                     </form>
                 </div>
@@ -54,7 +54,6 @@
         </header>
         <!-- Section-->
         <section class="py-5">
-            <div class="text-center"><a class="btn btnCuotas mt-auto btn-outline-dark" href="#">Calcular cuotas</a></div>
             <div class="container px-4 px-lg-5 mt-5">
                 <div class="sectionCard row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center"></div>
             </div>
