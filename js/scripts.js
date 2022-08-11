@@ -7,8 +7,11 @@ let objetosAcomprar = [
 ];
 
 
+let [producto1, producto2, producto3, producto4] = objetosAcomprar; //desestructuración de un array
+console.log(producto1)
+
 //accede a elementos guardados en el Storage. Se pone al inicio porque se debe ejecutar primero. 
-let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //si no hay nada en el carrito, es decir es null, ejecuta la segunda operación
+let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //operador avanzado: si no hay nada en el carrito, es decir es null, ejecuta la segunda operación. Es necesario hacerlo ya que sino la primer vez que se ingresa se genera error porque no está definido carrito 
 
 
 //Teniendo datos del carrito, es posible obtener precioTotal y carrito.length sin tener que traerlo del storage
@@ -48,41 +51,47 @@ function creacionCards () {
 }
 
 
-//muestra todos los productos agregados al carrito al hacer click en botón Carrito
-//FALTA: agregar precio total, calcular cuotas, darle funcionalidad a botón borrar producto, ver mejor forma de mostrar el carrito sin borrar HTML, ya que sale de la pág ppal
+//muestra todos los productos agregados al carrito 
+//FALTA: agregar precio total, calcular cuotas, darle funcionalidad a botón borrar producto, ver mejor forma de mostrar el carrito sin borrar HTML
 function mostrarCarrito () {
-    document.querySelector('.btnMostrarCarrito').onclick = () => { 
-        document.querySelector('.body').textContent = ''; //borra toda la información del HTML
-        document.querySelector('.body').innerHTML += //crea tabla dentro del HTML
+        document.querySelector('.header').textContent = ''; //borra toda la información del header
+        document.querySelector('.section').textContent = ''; //borra toda la información del section
+        document.querySelector('.header').innerHTML =
+            `<h1 class="text-center text-white">Carrito de Compras</h1>`; //crea título dentro del header
+        document.querySelector('.section').innerHTML = //crea tabla dentro del section y botón calcular cuotas
             `<table class="table">
-            <thead>
-            <tr>
-                <th scope="col">PRODUCTO</th>
-                <th scope="col">PRECIO</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-            </tr> 
-            <thead>
             <tbody class="tbodyTable">
             </tbody>
-            </table>`
+            </table>
+            <button class="btn btnCalcularCuotas btn-outline-dark position-relative my-5 top-50 start-50 translate-middle"> Calcular cuotas - Hasta 3 cuotas s/interés </button></td>`;
         carrito.forEach((producto) => { //muestra productos en una tabla
             document.querySelector('.tbodyTable').innerHTML +=
             `<tr>
-                <td>Sticker ${producto.tipo} ${producto.marca} </td>
-                <td>$${producto.precio}</td>
+                <td class="text-center align-middle">Sticker ${producto.tipo} ${producto.marca} </td>
+                <td class="align-middle">$${producto.precio}</td>
                 <td><img src="${producto.imagen}" style= "width:100px"></td>
-                <td><button class="btn btn-outline-dark"> Borrar producto </button></td>
-            </tr>
-            `;                    
+                <td class="align-middle"><button class="btn btn-outline-dark"> Borrar producto </button></td>
+            </tr>`;                  
         })
     }
+
+
+//genera una pantalla vacía sin productos, con posibilidad de volver al inicio
+function noMostrarCarrito () {
+        document.querySelector('.body').textContent = ''; //borra toda la información del header
+        // document.querySelector('.section').textContent = ''; //borra toda la información del section
+        document.querySelector('.body').innerHTML =
+            `<h1 class="mt-5 text-center">No hay productos en el Carrito de Compras</h1>;
+            <a href="../index.html"><button class="position-relative my-5 top-50 start-50 translate-middle btn btn-outline-dark"> Volver al Inicio </button></td><a>` //botón volver al inicio
 }
 
+
+//comienzo del programa
 creacionCards ();
-mostrarCarrito ();
-
-
+//al hacer click sobre botón Carrito, muestra o no muestra productos
+document.querySelector('.btnMostrarCarrito').onclick = () => {
+    (carrito.length !== 0) ? mostrarCarrito () : noMostrarCarrito (); //operador avanzado: dos funciones diferentes según haya o no productos en el carrito
+}
 
 
 
