@@ -8,7 +8,8 @@ let objetosAcomprar = [
 
 
 let [producto1, producto2, producto3, producto4] = objetosAcomprar; //desestructuración de un array
-console.log(producto1)
+console.log(producto1);
+console.log(...objetosAcomprar); //spread
 
 //accede a elementos guardados en el Storage. Se pone al inicio porque se debe ejecutar primero. 
 let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //operador avanzado: si no hay nada en el carrito, es decir es null, ejecuta la segunda operación. Es necesario hacerlo ya que sino la primer vez que se ingresa se genera error porque no está definido carrito 
@@ -52,34 +53,47 @@ function creacionCards () {
 
 
 //muestra todos los productos agregados al carrito 
-//FALTA: agregar precio total, calcular cuotas, darle funcionalidad a botón borrar producto, ver mejor forma de mostrar el carrito sin borrar HTML
+//FALTA: darle funcionalidad a botón borrar producto
 function mostrarCarrito () {
-        document.querySelector('.header').textContent = ''; //borra toda la información del header
-        document.querySelector('.section').textContent = ''; //borra toda la información del section
-        document.querySelector('.header').innerHTML =
-            `<h1 class="text-center text-white">Carrito de Compras</h1>`; //crea título dentro del header
-        document.querySelector('.section').innerHTML = //crea tabla dentro del section y botón calcular cuotas
-            `<table class="table">
-            <tbody class="tbodyTable">
-            </tbody>
-            </table>
-            <button class="btn btnCalcularCuotas btn-outline-dark position-relative my-5 top-50 start-50 translate-middle"> Calcular cuotas - Hasta 3 cuotas s/interés </button></td>`;
-        carrito.forEach((producto) => { //muestra productos en una tabla
-            document.querySelector('.tbodyTable').innerHTML +=
+    document.querySelector('.body').textContent = ''; //borra toda la información del body
+    document.querySelector('.body').innerHTML = //crea tabla con productos dentro del body, botón para seguir comprando y botón calcular cuotas
+        `<h1 class="text-center mt-5">Carrito de Compras</h1> 
+        <table class="table">
+        <tbody class="tbodyTable">
+        </tbody>
+        </table>
+        <h2 class="text-center my-5">Costo total: $${precioTotal}</h2>
+        <div><a href="../index.html"><button class="btn btn-dark position-relative my-3 top-50 start-50 translate-middle"> Seguir comprando </button></a></div>
+        <button class="btn btnCalcularCuotas btn-outline-dark position-relative my-3 top-50 start-50 translate-middle"> Calcular cuotas - Hasta 3 cuotas s/interés </button></td>
+        <div class="tablaCuotas"></div>`;
+    carrito.forEach((producto) => { //muestra productos en una tabla
+        document.querySelector('.tbodyTable').innerHTML +=
             `<tr>
-                <td class="text-center align-middle">Sticker ${producto.tipo} ${producto.marca} </td>
+                <td class="text-center align-middle">Sticker ${producto.tipo} - ${producto.marca} </td>
                 <td class="align-middle">$${producto.precio}</td>
                 <td><img src="${producto.imagen}" style= "width:100px"></td>
                 <td class="align-middle"><button class="btn btn-outline-dark"> Borrar producto </button></td>
-            </tr>`;                  
-        })
-    }
+            </tr>`
+    })
+    document.querySelector('.btnCalcularCuotas').onclick = () => {
+        document.querySelector('.tablaCuotas').innerHTML = //crea tabla para mostrar valores de cuotas
+            `<table class="Cuotas mx-auto mb-5">
+            <tbody class="tbodyCuotas">
+            </tbody>
+            </table>`;
+        for (let i = 1; i <= 3; i++) { //calcula valor de cuotas
+            document.querySelector('.tbodyCuotas').innerHTML +=
+            `<tr>
+                <td class="text-center">${i} cuota/s sin interés de $${precioTotal/i} </td>
+            </tr>`
+        }  
+    }             
+}
 
 
 //genera una pantalla vacía sin productos, con posibilidad de volver al inicio
 function noMostrarCarrito () {
-        document.querySelector('.body').textContent = ''; //borra toda la información del header
-        // document.querySelector('.section').textContent = ''; //borra toda la información del section
+        document.querySelector('.body').textContent = ''; //borra toda la información del body
         document.querySelector('.body').innerHTML =
             `<h1 class="mt-5 text-center">No hay productos en el Carrito de Compras</h1>;
             <a href="../index.html"><button class="position-relative my-5 top-50 start-50 translate-middle btn btn-outline-dark"> Volver al Inicio </button></td><a>` //botón volver al inicio
