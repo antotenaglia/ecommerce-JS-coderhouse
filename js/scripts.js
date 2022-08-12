@@ -8,8 +8,11 @@ let objetosAcomprar = [
 
 
 let [producto1, producto2, producto3, producto4] = objetosAcomprar; //desestructuración de un array
-console.log(producto1);
-console.log(...objetosAcomprar); //spread
+
+let producto1Dolar = { //spread, para agregar valor en dólares de uno de los productos
+    ...producto1,
+    preciodolar: 0.95
+}
 
 //accede a elementos guardados en el Storage. Se pone al inicio porque se debe ejecutar primero. 
 let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //operador avanzado: si no hay nada en el carrito, es decir es null, ejecuta la segunda operación. Es necesario hacerlo ya que sino la primer vez que se ingresa se genera error porque no está definido carrito 
