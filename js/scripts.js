@@ -7,14 +7,7 @@ let objetosAcomprar = [
 ];
 
 
-let [producto1, producto2, producto3, producto4] = objetosAcomprar; //desestructuración de un array
-
-let producto1Dolar = { //spread, para agregar valor en dólares de uno de los productos
-    ...producto1,
-    preciodolar: 0.95
-}
-
-//accede a elementos guardados en el Storage. Se pone al inicio porque se debe ejecutar primero. 
+//accede a elementos guardados en el Storage. Primero parsea de JSON a JS.
 let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //operador avanzado: si no hay nada en el carrito, es decir es null, ejecuta la segunda operación. Es necesario hacerlo ya que sino la primer vez que se ingresa se genera error porque no está definido carrito 
 
 
@@ -26,7 +19,7 @@ document.querySelector('.acumuladorCarrito').innerHTML = carrito.length; //muest
 //por cada producto, hace una card desde JS y genera la función agregarAlCarrito al hacer click sobre botón, identificado por el id del producto
 function creacionCards () {
     objetosAcomprar.forEach((producto) => {
-        const idButton = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto 
+        const idButtonAgregar = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto 
         document.querySelector('.sectionCard').innerHTML += 
             `<div class="col mb-5">
                 <div class="card h-100">
@@ -38,16 +31,16 @@ function creacionCards () {
                         </div>
                     </div>
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" id="${idButton}">Agregar al carrito</a></div> 
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" id="${idButtonAgregar}">Agregar al carrito</a></div> 
                     </div>
                 </div>
             </div>`;
     })
     objetosAcomprar.forEach((producto) => {
-        const idButton = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto 
-        document.getElementById(idButton).onclick = () => { //accede al id y cada vez que se hace click sobre el botón Agregar al carrito realiza lo siguiente:
+        const idButtonAgregar = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto a agregar
+        document.getElementById(idButtonAgregar).onclick = () => { //accede al id y cada vez que se hace click sobre el botón Agregar al carrito realiza lo siguiente:
             carrito.push(producto); //envía el producto al carrito
-            localStorage.setItem('carrito', JSON.stringify(carrito)); //almacena carrito en el storage
+            localStorage.setItem('carrito', JSON.stringify(carrito)); //almacena carrito en el storage, en forma de texto JSON
             document.querySelector('.acumuladorCarrito').innerHTML = carrito.length //muestra N° productos en el carrito 
             precioTotal = carrito.reduce((total, producto) => total + producto.precio, 0); //calcula precio total acumulado 
         } 
@@ -56,29 +49,53 @@ function creacionCards () {
 
 
 //muestra todos los productos agregados al carrito 
-//FALTA: darle funcionalidad a botón borrar producto
+//FALTA: darle funcionalidad a botón borrar producto y borrar productos duplicados, para que aparezcan en un acumulador
 function mostrarCarrito () {
     document.querySelector('.body').textContent = ''; //borra toda la información del body
-    document.querySelector('.body').innerHTML = //crea tabla con productos dentro del body, botón para seguir comprando y botón calcular cuotas
-        `<h1 class="text-center mt-5">Carrito de Compras</h1> 
+    document.querySelector('.body').innerHTML = //crea tabla con productos dentro del body, el botón para seguir comprando y el botón calcular cuotas
+        `<h1 class="text-center my-5">Carrito de Compras</h1> 
         <table class="table">
         <tbody class="tbodyTable">
         </tbody>
         </table>
-        <h2 class="text-center my-5">Costo total: $${precioTotal}</h2>
-        <div><a href="../index.html"><button class="btn btn-dark position-relative my-3 top-50 start-50 translate-middle"> Seguir comprando </button></a></div>
+        <h2 class="text-center my-5">Total del pedido: $${precioTotal}</h2>
+        <div><a href="../index.html"><button class="btn btn-dark position-relative my-3 top-50 start-50 translate-middle"> <   Seguir comprando </button></a></div>
         <button class="btn btnCalcularCuotas btn-outline-dark position-relative my-3 top-50 start-50 translate-middle"> Calcular cuotas - Hasta 3 cuotas s/interés </button></td>
         <div class="tablaCuotas"></div>`;
     carrito.forEach((producto) => { //muestra productos en una tabla
+        const idProductoCarrito = `idProductoCarrito ${producto.id}`//crea un id único para cada producto del carrito
+        const idButtonBorrar = `btnBorrarProducto ${producto.id}` //crea un id único para cada producto a borrar
         document.querySelector('.tbodyTable').innerHTML +=
-            `<tr>
+            `<tr id="${idProductoCarrito}">
                 <td class="text-center align-middle">Sticker ${producto.tipo} - ${producto.marca} </td>
                 <td class="align-middle">$${producto.precio}</td>
                 <td><img src="${producto.imagen}" style= "width:100px"></td>
-                <td class="align-middle"><button class="btn btn-outline-dark"> Borrar producto </button></td>
-            </tr>`
+                <td class="align-middle"><button class="btn btn-outline-dark" id="${idButtonBorrar}"> Borrar producto </button></td>
+            </tr>`;
     })
-    document.querySelector('.btnCalcularCuotas').onclick = () => {
+    carrito.forEach((producto) => { //borra productos del carrito 
+        const idProductoCarrito = `idProductoCarrito ${producto.id}`//crea un id único para cada producto del carrito
+        const idButtonBorrar = `btnBorrarProducto ${producto.id}` //crea un id único para cada producto a borrar
+        document.getElementById(idButtonBorrar).onclick = () => { //cada vez que se hace click sobre el botón Borrar producto realiza lo siguiente:
+            Swal.fire({ //consulta si está seguro de borrar el producto - librería sweetalert
+                title: '¿Está seguro de borrar este producto?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, borrar producto'
+            }).then((result) => {   
+                if (result.isConfirmed) {
+                    Swal.fire(
+                        'Eliminado!',
+                        'El producto ha sido eliminado',
+                        'success'
+                    )
+                }
+            }) 
+        } 
+    })  
+    document.querySelector('.btnCalcularCuotas').onclick = () => { // calcula valor de cuotas sobre precio total
         document.querySelector('.tablaCuotas').innerHTML = //crea tabla para mostrar valores de cuotas
             `<table class="Cuotas mx-auto mb-5">
             <tbody class="tbodyCuotas">
