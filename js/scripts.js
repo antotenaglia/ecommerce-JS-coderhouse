@@ -1,50 +1,55 @@
-
-let objetosAcomprar = [
-    {id: 1, tipo: "Smelly cat", marca: "Friends", precio: 125, imagen:'../images/Smelly-cat.jpg'},
-    {id: 2, tipo: "Logo", marca: "Coldplay", precio: 56, imagen:'../images/Logo-coldplay.jpg'},
-    {id: 3, tipo: "London Baby", marca: "Friends", precio: 48, imagen:'../images/London-baby.jpg'},
-    {id: 4, tipo: "Paradise", marca: "Coldplay", precio: 100, imagen:'../images/Paradise.jpg'},
-];
-
-
 //accede a elementos guardados en el Storage. Primero parsea de JSON a JS.
-let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //operador avanzado: si no hay nada en el carrito, es decir es null, ejecuta la segunda operación. Es necesario hacerlo ya que sino la primer vez que se ingresa se genera error porque no está definido carrito 
+let carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; //si no hay nada en el carrito, es decir es null, ejecuta la segunda operación. Es necesario hacerlo ya que sino la primer vez que se ingresa se genera error porque no está definido carrito 
+let repetidos = JSON.parse(localStorage.getItem('repetidos')) ?? []; //si no hay nada en repetidos, es decir es null, ejecuta la segunda operación. 
 
+//teniendo datos del carrito y de repetidos, es posible obtener precioTotal y length sin tener que traerlo del storage
+let precioTotal = carrito.reduce((totalCarrito, producto) => totalCarrito + producto.precio, 0) + repetidos.reduce((totalRepetidos, repetidos) => totalRepetidos + repetidos.precio, 0);
+document.querySelector('.acumuladorCarrito').innerHTML = carrito.length + repetidos.length; //muestra N° productos en el botón del carrito
 
-//Teniendo datos del carrito, es posible obtener precioTotal y carrito.length sin tener que traerlo del storage
-let precioTotal = carrito.reduce((total, producto) => total + producto.precio, 0); 
-document.querySelector('.acumuladorCarrito').innerHTML = carrito.length; //muestra N° productos en el botón del carrito
-
-
-//por cada producto, hace una card desde JS y genera la función agregarAlCarrito al hacer click sobre botón, identificado por el id del producto
+//crea cards de todos los productos del carrito
 function creacionCards () {
-    objetosAcomprar.forEach((producto) => {
-        const idButtonAgregar = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto 
-        document.querySelector('.sectionCard').innerHTML += 
-            `<div class="col mb-5">
-                <div class="card h-100">
-                    <img class="card-img-top" src= ${producto.imagen} alt="imagen"/>
-                    <div class="card-body p-4">
-                        <div class="text-center">
-                            <h5 class="fw-bolder"> ${producto.tipo} - ${producto.marca}</h5>
-                            <h6>$ ${producto.precio}</h6>
+    fetch('../productos.json') //peticion a un archivo local
+        .then((response) => response.json())
+        .then((objetosAcomprar) => { 
+            //por cada producto, hace una card desde JS
+            objetosAcomprar.forEach((producto) => {
+                const idButtonAgregar = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto 
+                document.querySelector('.sectionCard').innerHTML += 
+                    `<div class="col mb-5">
+                        <div class="card h-100">
+                            <img class="card-img-top" src= ${producto.imagen} alt="imagen"/>
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <h5 class="fw-bolder"> ${producto.tipo} - ${producto.marca}</h5>
+                                    <h6>$ ${producto.precio}</h6>
+                                </div>
+                            </div>
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" id="${idButtonAgregar}">Agregar al carrito</a></div> 
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" id="${idButtonAgregar}">Agregar al carrito</a></div> 
-                    </div>
-                </div>
-            </div>`;
-    })
-    objetosAcomprar.forEach((producto) => {
-        const idButtonAgregar = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto a agregar
-        document.getElementById(idButtonAgregar).onclick = () => { //accede al id y cada vez que se hace click sobre el botón Agregar al carrito realiza lo siguiente:
-            carrito.push(producto); //envía el producto al carrito
-            localStorage.setItem('carrito', JSON.stringify(carrito)); //almacena carrito en el storage, en forma de texto JSON
-            document.querySelector('.acumuladorCarrito').innerHTML = carrito.length //muestra N° productos en el carrito 
-            precioTotal = carrito.reduce((total, producto) => total + producto.precio, 0); //calcula precio total acumulado 
-        } 
-    })
+                    </div>`;
+            })
+            //agrega productos al carrito al hacer click sobre botón
+            objetosAcomprar.forEach((producto) => {
+                const idButtonAgregar = `btnAgregarAlCarrito ${producto.id}` //crea un id único para cada producto a agregar
+                document.getElementById(idButtonAgregar).onclick = () => { //accede al id y cada vez que se hace click sobre el botón Agregar al carrito realiza lo siguiente:
+                    if (carrito.length != 0) {
+                        let repetido = carrito.find ((el) => el.id == producto.id) //busca si el producto a agregar ya se encuentra en el carrito, mediante su id
+                        repetido ?? carrito.push(producto) //si el producto no se encuentra en el carrito, lo agrega
+                        if (repetido ?? false) { //si hay un producto repetido, lo agrega al carrito de repetidos
+                            repetidos.push(producto);
+                        }
+                    } else {
+                        carrito.push(producto); //si el carrito está vacío, lo agrega al carrito 
+                    }
+                    localStorage.setItem('carrito', JSON.stringify(carrito)); //almacena carrito en el storage, en forma de texto JSON
+                    localStorage.setItem('repetidos', JSON.stringify(repetidos)); //almacena repetidos en el storage, en forma de texto JSON
+                    document.querySelector('.acumuladorCarrito').innerHTML = carrito.length + repetidos.length; //muestra N° productos en el carrito 
+                    precioTotal = carrito.reduce((totalCarrito, producto) => totalCarrito + producto.precio, 0) + repetidos.reduce((totalRepetidos, repetidos) => totalRepetidos + repetidos.precio, 0); //calcula precio total acumulado 
+                } 
+            })
+        })
 }
 
 
@@ -55,6 +60,14 @@ function mostrarCarrito () {
     document.querySelector('.body').innerHTML = //crea tabla con productos dentro del body, el botón para seguir comprando y el botón calcular cuotas
         `<h1 class="text-center my-5">Carrito de Compras</h1> 
         <table class="table">
+        <thead>
+            <tr>
+            <th scope="col" class="text-center">PRODUCTO</th>
+            <th scope="col" class="text-center">CANTIDAD</th>
+            <th scope="col" class="text-center">SUBTOTAL</th>
+            <th scope="col"></th>
+            </tr>
+        </thead>
         <tbody class="tbodyTable">
         </tbody>
         </table>
@@ -63,16 +76,32 @@ function mostrarCarrito () {
         <button class="btn btnCalcularCuotas btn-outline-dark position-relative my-3 top-50 start-50 translate-middle"> Calcular cuotas - Hasta 3 cuotas s/interés </button></td>
         <div class="tablaCuotas"></div>`;
     carrito.forEach((producto) => { //muestra productos en una tabla
-        const idProductoCarrito = `idProductoCarrito ${producto.id}`//crea un id único para cada producto del carrito
+        const idCantidad = `idCantidad ${producto.id}` //crea un id único para la cantidad de cada producto
+        const idSubtotal = `idSubtotal ${producto.id}` //crea un id único para el subtotal de cada producto
         const idButtonBorrar = `btnBorrarProducto ${producto.id}` //crea un id único para cada producto a borrar
         document.querySelector('.tbodyTable').innerHTML +=
-            `<tr id="${idProductoCarrito}">
-                <td class="text-center align-middle">Sticker ${producto.tipo} - ${producto.marca} </td>
-                <td class="align-middle">$${producto.precio}</td>
-                <td><img src="${producto.imagen}" style= "width:100px"></td>
-                <td class="align-middle"><button class="btn btn-outline-dark" id="${idButtonBorrar}"> Borrar producto </button></td>
-            </tr>`;
+            `<tr>
+                <td class="text-center align-middle">Sticker ${producto.tipo} - ${producto.marca}</td>
+                <td class="text-center align-middle" id="${idCantidad}">1</td>
+                <td class="text-center align-middle" id="${idSubtotal}">$${producto.precio}</td>
+                <td class="text-center"><img src="${producto.imagen}" style= "width:100px"></td>
+                <td class="text-center align-middle"><button class="btn btn-outline-dark" id="${idButtonBorrar}"> Borrar producto </button></td>
+            </tr>`;  
     })
+    if (repetidos.length != 0) { //por cada producto repetido, acumula la cantidad y el precio en el producto del carrito
+        carrito.forEach((producto) => {  
+            const idCantidad = `idCantidad ${producto.id}`
+            const idSubtotal = `idSubtotal ${producto.id}`
+            let acumulador = 1;
+            repetidos.forEach((repetido) => { //recorre todo el array de repetidos para identificar la cantidad de repetidos
+                if (producto.id == repetido.id) {
+                    acumulador = acumulador + 1;
+                }
+            })
+            document.getElementById(idCantidad).innerHTML = `${acumulador}`
+            document.getElementById(idSubtotal).innerHTML = `$${acumulador*producto.precio}`
+        })
+    }
     carrito.forEach((producto) => { //borra productos del carrito 
         const idProductoCarrito = `idProductoCarrito ${producto.id}`//crea un id único para cada producto del carrito
         const idButtonBorrar = `btnBorrarProducto ${producto.id}` //crea un id único para cada producto a borrar

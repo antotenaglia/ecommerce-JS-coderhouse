@@ -1,0 +1,6 @@
+[
+    {"id": 1, "tipo": "Smelly cat", "marca": "Friends", "precio": 125, "imagen":"./images/Smelly-cat.jpg"},
+    {"id": 2, "tipo": "Logo", "marca": "Coldplay", "precio": 56, "imagen":"./images/Logo-coldplay.jpg"},
+    {"id": 3, "tipo": "London Baby", "marca": "Friends", "precio": 48, "imagen":"./images/London-baby.jpg"},
+    {"id": 4, "tipo": "Paradise", "marca": "Coldplay", "precio": 100, "imagen":"./images/Paradise.jpg"}
+]
