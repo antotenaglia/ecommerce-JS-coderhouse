@@ -54,7 +54,6 @@ function creacionCards () {
 
 
 //muestra todos los productos agregados al carrito 
-//FALTA: darle funcionalidad a botón borrar producto y borrar productos duplicados, para que aparezcan en un acumulador
 function mostrarCarrito () {
     document.querySelector('.body').textContent = ''; //borra toda la información del body
     document.querySelector('.body').innerHTML = //crea tabla con productos dentro del body, el botón para seguir comprando y el botón calcular cuotas
@@ -76,11 +75,12 @@ function mostrarCarrito () {
         <button class="btn btnCalcularCuotas btn-outline-dark position-relative my-3 top-50 start-50 translate-middle"> Calcular cuotas - Hasta 3 cuotas s/interés </button></td>
         <div class="tablaCuotas"></div>`;
     carrito.forEach((producto) => { //muestra productos en una tabla
+        const idProductoCarrito = `idProductoCarrito ${producto.id}`//crea un id único para cada producto del carrito
         const idCantidad = `idCantidad ${producto.id}` //crea un id único para la cantidad de cada producto
         const idSubtotal = `idSubtotal ${producto.id}` //crea un id único para el subtotal de cada producto
         const idButtonBorrar = `btnBorrarProducto ${producto.id}` //crea un id único para cada producto a borrar
         document.querySelector('.tbodyTable').innerHTML +=
-            `<tr>
+            `<tr id="${idProductoCarrito}">
                 <td class="text-center align-middle">Sticker ${producto.tipo} - ${producto.marca}</td>
                 <td class="text-center align-middle" id="${idCantidad}">1</td>
                 <td class="text-center align-middle" id="${idSubtotal}">$${producto.precio}</td>
@@ -120,6 +120,12 @@ function mostrarCarrito () {
                         'El producto ha sido eliminado',
                         'success'
                     )
+                    let indexBorrar = carrito.findIndex(arrayItem => arrayItem.id == producto.id) //busca el índice dentro del carrito del producto que se desea borrar
+                    console.log(indexBorrar)
+                    if (indexBorrar != -1) {
+                        carrito.splice(indexBorrar,1); //borra producto del carrito
+                        localStorage.setItem('carrito', JSON.stringify(carrito)); //almacena carrito en el storage, sin el producto eliminado, en forma de texto JSON
+                    }   
                 }
             }) 
         } 
